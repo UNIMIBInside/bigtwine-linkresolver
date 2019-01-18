@@ -1,0 +1,4 @@
+rootProject.name = 'linkresolver'
+
+include ':commons'
+project(':commons').projectDir = new File("../../commons")
