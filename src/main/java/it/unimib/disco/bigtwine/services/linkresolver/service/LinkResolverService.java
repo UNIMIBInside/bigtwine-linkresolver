@@ -2,6 +2,7 @@ package it.unimib.disco.bigtwine.services.linkresolver.service;
 
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverRequestMessage;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
+import it.unimib.disco.bigtwine.commons.models.Counter;
 import it.unimib.disco.bigtwine.commons.models.Link;
 import it.unimib.disco.bigtwine.commons.models.Resource;
 import it.unimib.disco.bigtwine.commons.processors.GenericProcessor;
@@ -14,6 +15,8 @@ import it.unimib.disco.bigtwine.services.linkresolver.messaging.LinkResolverResp
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class LinkResolverService implements ProcessorListener<Resource> {
@@ -28,13 +32,17 @@ public class LinkResolverService implements ProcessorListener<Resource> {
     private final Logger log = LoggerFactory.getLogger(LinkResolverService.class);
     private MessageChannel channel;
     private ProcessorFactory processorFactory;
+    private KafkaTemplate<Integer, String> kafka;
     private Map<LinkType, Processor> processors = new HashMap<>();
+    private Map<String, Counter<LinkResolverRequestMessage>> requests = new HashMap<>();
 
     public LinkResolverService(
         LinkResolverResponsesProducerChannel channel,
-        ProcessorFactory processorFactory) {
+        ProcessorFactory processorFactory,
+        KafkaTemplate<Integer, String> kafka) {
         this.channel = channel.linkResolverResponsesChannel();
         this.processorFactory = processorFactory;
+        this.kafka = kafka;
     }
 
     private Processor getProcessor(LinkType linkType) {
@@ -65,37 +73,61 @@ public class LinkResolverService implements ProcessorListener<Resource> {
         return processor;
     }
 
+    private String getNewRequestTag() {
+        return UUID.randomUUID().toString();
+    }
+
     private void processResolveRequest(LinkResolverRequestMessage request) {
-        for (Link link : request.getLinks()) {
-            String url = link.getUrl();
-            LinkType linkType = LinkType.getTypeOfLink(url);
+        if (request.getLinks().length > 0) {
+            String tag = this.getNewRequestTag();
 
-            if (linkType == null) {
-                return;
+            this.requests.put(tag, new Counter<>(request, request.getLinks().length));
+
+            for (Link link : request.getLinks()) {
+                String url = link.getUrl();
+                LinkType linkType = LinkType.getTypeOfLink(url);
+
+                if (linkType == null) {
+                    return;
+                }
+
+                Processor processor = this.getProcessor(linkType);
+
+                if (processor == null) {
+                    return;
+                }
+
+                processor.process(tag, link);
             }
-
-            Processor processor = this.getProcessor(linkType);
-
-            if (processor == null) {
-                return;
-            }
-
-            processor.process(request.getRequestId(), link);
         }
     }
 
     private void sendResponse(Processor processor, String tag, Resource[] resources) {
-        // for (LinkedTweet tweet : tweets) {
-        //      System.out.println("Linked tweet: " + tweet.getId());
-        // }
+        if (!this.requests.containsKey(tag)) {
+            log.debug("Request tagged '" + tag + "' expired");
+            return;
+        }
+
+        Counter<LinkResolverRequestMessage> requestCounter = this.requests.get(tag);
+        requestCounter.decrement(resources.length);
+        LinkResolverRequestMessage request = requestCounter.get();
+        if (!requestCounter.hasMore()) {
+            this.requests.remove(tag);
+        }
+
         LinkResolverResponseMessage response = new LinkResolverResponseMessage();
         response.setResources(resources);
         response.setRequestId(tag);
-        Message<LinkResolverResponseMessage> message = MessageBuilder
-            .withPayload(response)
-            // .setHeader(KafkaHeaders.TOPIC, "linkresolver-responses-test")
-            .build();
-        this.channel.send(message);
+        MessageBuilder<LinkResolverResponseMessage> messageBuilder = MessageBuilder
+            .withPayload(response);
+
+        if (request.getOutputTopic() != null) {
+            messageBuilder.setHeader(KafkaHeaders.TOPIC, request.getOutputTopic());
+            this.kafka.send(messageBuilder.build());
+        }else {
+            this.channel.send(messageBuilder.build());
+        }
+
         log.info("Request Processed: {}.", tag);
     }
 

@@ -35,6 +35,6 @@ public final class DbpediaSparqlQueryProducer implements SparqlQueryProducer {
 
         return szQuery
             .replace("{RESOURCE_URI}", link.getUrl())
-            .replace("{RESOURCE_UID}", link.getTag() != null ? link.getTag() : "");
+            .replace("{RESOURCE_TAG}", link.getTag() != null ? link.getTag() : "");
     }
 }
