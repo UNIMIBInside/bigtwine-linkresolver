@@ -1,13 +1,13 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "it.unimib.disco.bigtwine"
+      "packageName": "it.unimib.disco.bigtwine.services.linkresolver"
     },
     "jhipsterVersion": "5.7.2",
     "applicationType": "microservice",
     "baseName": "linkresolver",
-    "packageName": "it.unimib.disco.bigtwine",
-    "packageFolder": "it/unimib/disco/bigtwine",
+    "packageName": "it.unimib.disco.bigtwine.services.linkresolver",
+    "packageFolder": "it/unimib/disco/bigtwine/services/linkresolver",
     "serverPort": "9008",
     "authenticationType": "jwt",
     "cacheProvider": "no",
@@ -21,7 +21,7 @@
     "serviceDiscoveryType": "eureka",
     "buildTool": "gradle",
     "enableSwaggerCodegen": false,
-    "jwtSecretKey": "ODM5MDNhOGE2YTFmZjBlYjk4YjM3ZDY4MmMyYzgxMDBmNGQ5MGVhMWMyZDg1NjFlZjY2ZDdkZGFkMTI0NTVmMTZlOGYxMDZjYTIyMmRiMzA4MjA4NzBjZTg3MWY2MDI0M2JiOGQ1OGIxNjhhMTU3YmIyOWVhZTE1OWI3NTZhNDk=",
+    "jwtSecretKey": "YmVkZGM1ZjQ2YmViZWJlMGJiYTFlNDA2MGZmMTkwZDE2MzkzNTJkNzIzY2ViNzJiYzdmNzc3Y2JiNGJmYWE0NmIwYzJhMjZkZTZjZDExMGEzMmNlNmQ3MzZkNDYyOGQ3YTYxNzU3MWU5ZTZkOTNiOWI5MDQwYTE1MWNmNDllYTY=",
     "testFrameworks": [],
     "jhiPrefix": "jhi",
     "otherModules": [],

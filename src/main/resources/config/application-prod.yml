@@ -16,7 +16,7 @@
 logging:
     level:
         ROOT: INFO
-        it.unimib.disco.bigtwine: INFO
+        it.unimib.disco.bigtwine.services.linkresolver: INFO
         io.github.jhipster: INFO
 
 eureka:
@@ -103,7 +103,7 @@ jhipster:
                 # - In the JHipster Registry (which includes a Spring Cloud Config server)
                 # - In a separate `application-prod.yml` file, in the same folder as your executable WAR file
                 # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
-                base64-secret: ODM5MDNhOGE2YTFmZjBlYjk4YjM3ZDY4MmMyYzgxMDBmNGQ5MGVhMWMyZDg1NjFlZjY2ZDdkZGFkMTI0NTVmMTZlOGYxMDZjYTIyMmRiMzA4MjA4NzBjZTg3MWY2MDI0M2JiOGQ1OGIxNjhhMTU3YmIyOWVhZTE1OWI3NTZhNDk=
+                base64-secret: YmVkZGM1ZjQ2YmViZWJlMGJiYTFlNDA2MGZmMTkwZDE2MzkzNTJkNzIzY2ViNzJiYzdmNzc3Y2JiNGJmYWE0NmIwYzJhMjZkZTZjZDExMGEzMmNlNmQ3MzZkNDYyOGQ3YTYxNzU3MWU5ZTZkOTNiOWI5MDQwYTE1MWNmNDllYTY=
                 # Token is valid 24 hours
                 token-validity-in-seconds: 86400
                 token-validity-in-seconds-for-remember-me: 2592000
