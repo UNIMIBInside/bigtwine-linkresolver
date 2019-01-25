@@ -1,6 +1,7 @@
 package it.unimib.disco.bigtwine.services.linkresolver.processors;
 
 import it.unimib.disco.bigtwine.commons.executors.Executor;
+import it.unimib.disco.bigtwine.commons.models.Link;
 import it.unimib.disco.bigtwine.commons.models.Resource;
 import it.unimib.disco.bigtwine.commons.processors.ProcessorListener;
 import it.unimib.disco.bigtwine.services.linkresolver.QueryType;
@@ -56,15 +57,15 @@ public abstract class SparqlSyncProcessor implements Processor {
     }
 
     @Override
-    public boolean process(String tag, String item) {
-        return this.process(tag, new String[] {item});
+    public boolean process(String tag, Link item) {
+        return this.process(tag, new Link[] {item});
     }
 
     @Override
-    public boolean process(String tag, String[] items) {
+    public boolean process(String tag, Link[] items) {
         List<Resource> resources = new ArrayList<>();
 
-        for (String item : items) {
+        for (Link item : items) {
             String query = this.queryProducer.buildQuery(item);
             ResultSet resultSet = this.executor.query(query);
             if (resultSet != null) {

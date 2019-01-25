@@ -76,6 +76,10 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
                     case "abstract":
                         res.setShortDesc(szVal);
                         break;
+                    case "tag":
+                        if (!szVal.isEmpty())
+                            res.setTag(szVal);
+                        break;
                     case "thumb":
                         res.setThumbLarge(szVal);
                         res.setThumb(szVal.replace("width=300", "width=88"));

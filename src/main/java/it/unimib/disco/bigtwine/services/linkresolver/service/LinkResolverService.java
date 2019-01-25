@@ -2,6 +2,7 @@ package it.unimib.disco.bigtwine.services.linkresolver.service;
 
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverRequestMessage;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
+import it.unimib.disco.bigtwine.commons.models.Link;
 import it.unimib.disco.bigtwine.commons.models.Resource;
 import it.unimib.disco.bigtwine.commons.processors.GenericProcessor;
 import it.unimib.disco.bigtwine.commons.processors.ProcessorListener;
@@ -65,7 +66,8 @@ public class LinkResolverService implements ProcessorListener<Resource> {
     }
 
     private void processResolveRequest(LinkResolverRequestMessage request) {
-        for (String url : request.getLinks()) {
+        for (Link link : request.getLinks()) {
+            String url = link.getUrl();
             LinkType linkType = LinkType.getTypeOfLink(url);
 
             if (linkType == null) {
@@ -78,7 +80,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
                 return;
             }
 
-            processor.process(request.getRequestId(), url);
+            processor.process(request.getRequestId(), link);
         }
     }
 
