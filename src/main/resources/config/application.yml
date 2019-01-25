@@ -89,6 +89,14 @@ spring:
             enabled: false
     thymeleaf:
         mode: HTML
+    cloud:
+        stream:
+            bindings:
+                linkResolverResponsesChannel:
+                    destination: linkresolver-responses
+                    content-type: application/json
+                linkResolverRequestsChannel:
+                    destination: linkresolver-requests
 
 server:
     servlet:
