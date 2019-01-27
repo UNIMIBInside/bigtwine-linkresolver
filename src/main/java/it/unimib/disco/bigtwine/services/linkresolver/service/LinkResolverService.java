@@ -2,7 +2,7 @@ package it.unimib.disco.bigtwine.services.linkresolver.service;
 
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverRequestMessage;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
-import it.unimib.disco.bigtwine.commons.models.Counter;
+import it.unimib.disco.bigtwine.commons.messaging.RequestCounter;
 import it.unimib.disco.bigtwine.commons.models.Link;
 import it.unimib.disco.bigtwine.commons.models.Resource;
 import it.unimib.disco.bigtwine.commons.processors.GenericProcessor;
@@ -34,7 +34,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
     private ProcessorFactory processorFactory;
     private KafkaTemplate<Integer, String> kafka;
     private Map<LinkType, Processor> processors = new HashMap<>();
-    private Map<String, Counter<LinkResolverRequestMessage>> requests = new HashMap<>();
+    private Map<String, RequestCounter<LinkResolverRequestMessage>> requests = new HashMap<>();
 
     public LinkResolverService(
         LinkResolverResponsesProducerChannel channel,
@@ -81,7 +81,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
         if (request.getLinks().length > 0) {
             String tag = this.getNewRequestTag();
 
-            this.requests.put(tag, new Counter<>(request, request.getLinks().length));
+            this.requests.put(tag, new RequestCounter<>(request, request.getLinks().length));
 
             for (Link link : request.getLinks()) {
                 String url = link.getUrl();
@@ -108,7 +108,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
             return;
         }
 
-        Counter<LinkResolverRequestMessage> requestCounter = this.requests.get(tag);
+        RequestCounter<LinkResolverRequestMessage> requestCounter = this.requests.get(tag);
         requestCounter.decrement(resources.length);
         LinkResolverRequestMessage request = requestCounter.get();
         if (!requestCounter.hasMore()) {
