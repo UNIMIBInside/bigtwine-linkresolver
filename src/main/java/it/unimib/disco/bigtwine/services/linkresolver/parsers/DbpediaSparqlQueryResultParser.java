@@ -2,6 +2,8 @@ package it.unimib.disco.bigtwine.services.linkresolver.parsers;
 
 import it.unimib.disco.bigtwine.commons.models.Coordinate;
 import it.unimib.disco.bigtwine.commons.models.Resource;
+import it.unimib.disco.bigtwine.commons.models.dto.CoordinatesDTO;
+import it.unimib.disco.bigtwine.commons.models.dto.ResourceDTO;
 import it.unimib.disco.bigtwine.services.linkresolver.QueryType;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
@@ -33,7 +35,7 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
     public Resource parse() {
         if (this.resultSet == null) throw new IllegalStateException("resultSet is null");
 
-        Resource res = new Resource();
+        Resource res = new ResourceDTO();
         Double lat = null;
         Double lng = null;
 
@@ -103,7 +105,7 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
         }
 
         if (lat != null && lng != null) {
-            res.setCoordinates(new Coordinate(lat, lng));
+            res.setCoordinates(new CoordinatesDTO(lat, lng));
         }
 
         if (res.getUrl() != null && res.getName() != null) {

@@ -5,6 +5,7 @@ import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
 import it.unimib.disco.bigtwine.commons.messaging.RequestCounter;
 import it.unimib.disco.bigtwine.commons.models.Link;
 import it.unimib.disco.bigtwine.commons.models.Resource;
+import it.unimib.disco.bigtwine.commons.models.dto.ResourceDTO;
 import it.unimib.disco.bigtwine.commons.processors.GenericProcessor;
 import it.unimib.disco.bigtwine.commons.processors.ProcessorListener;
 import it.unimib.disco.bigtwine.services.linkresolver.LinkType;
@@ -21,6 +22,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -115,7 +117,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
         }
 
         LinkResolverResponseMessage response = new LinkResolverResponseMessage();
-        response.setResources(resources);
+        response.setResources(Arrays.asList(resources).toArray(new ResourceDTO[resources.length]));
         response.setRequestId(tag);
         MessageBuilder<LinkResolverResponseMessage> messageBuilder = MessageBuilder
             .withPayload(response);
