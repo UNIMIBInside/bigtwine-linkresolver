@@ -70,11 +70,14 @@ public abstract class SparqlSyncProcessor implements Processor {
             ResultSet resultSet = this.executor.query(query);
             if (resultSet != null) {
                 Resource resource = this.resultParser.parse(resultSet);
-                resources.add(resource);
+
+                if (resource != null) {
+                    resources.add(resource);
+                }
             }
         }
 
-        if (this.listener != null && resources.size() > 0) {
+        if (this.listener != null) {
             this.listener.onProcessed(this, tag, resources.toArray(new Resource[0]));
         }
 

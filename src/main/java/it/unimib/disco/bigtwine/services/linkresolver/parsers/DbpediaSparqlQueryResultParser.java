@@ -68,9 +68,6 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
                         res.setName(szVal);
                         break;
                     case "name_w":
-                        if (res.getName() == null)
-                            res.setName(szVal);
-                        break;
                     case "name_f":
                         if (res.getName() == null)
                             res.setName(szVal);
@@ -108,7 +105,7 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
             res.setCoordinates(new CoordinatesDTO(lat, lng));
         }
 
-        if (res.getUrl() != null && res.getName() != null) {
+        if (res.getUrl() != null) {
             return res;
         }else {
             return null;
