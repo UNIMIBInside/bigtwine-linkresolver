@@ -9,6 +9,8 @@ import it.unimib.disco.bigtwine.services.linkresolver.executors.SparqlSyncExecut
 import it.unimib.disco.bigtwine.services.linkresolver.parsers.SparqlQueryResultParser;
 import it.unimib.disco.bigtwine.services.linkresolver.producers.SparqlQueryProducer;
 import org.apache.jena.query.ResultSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @QueryBasedProcessor(supportedQueryTypes = { QueryType.sparql })
 public abstract class SparqlSyncProcessor implements Processor {
+
+    private final Logger log = LoggerFactory.getLogger(SparqlSyncProcessor.class);
 
     protected SparqlQueryProducer queryProducer;
     protected SparqlQueryResultParser resultParser;
@@ -66,13 +70,16 @@ public abstract class SparqlSyncProcessor implements Processor {
         List<Resource> resources = new ArrayList<>();
 
         for (Link item : items) {
+            log.debug("Starting to resolve link: {}", item.getUrl());
             String query = this.queryProducer.buildQuery(item);
             ResultSet resultSet = this.executor.query(query);
+            log.debug("Link {} resolved", resultSet);
             if (resultSet != null) {
                 Resource resource = this.resultParser.parse(resultSet);
 
                 if (resource != null) {
                     resources.add(resource);
+                    log.debug("Resource found for link {} {}", item.getUrl(), resource.getName());
                 }
             }
         }

@@ -22,10 +22,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class LinkResolverService implements ProcessorListener<Resource> {
@@ -81,24 +78,35 @@ public class LinkResolverService implements ProcessorListener<Resource> {
     private void processResolveRequest(LinkResolverRequestMessage request) {
         if (request.getLinks().length > 0) {
             String tag = this.getNewRequestTag();
-
-            this.requests.put(tag, new RequestCounter<>(request, request.getLinks().length));
+            int linksCount = 0;
+            Map<LinkType, List<Link>> linksByType = new HashMap<>();
 
             for (Link link : request.getLinks()) {
                 String url = link.getUrl();
                 LinkType linkType = LinkType.getTypeOfLink(url);
 
                 if (linkType == null) {
-                    return;
+                    continue;
                 }
 
-                Processor processor = this.getProcessor(linkType);
+                if (!linksByType.containsKey(linkType)) {
+                    linksByType.put(linkType, new ArrayList<>());
+                }
+
+                linksByType.get(linkType).add(link);
+                linksCount++;
+            }
+
+            this.requests.put(tag, new RequestCounter<>(request, linksCount));
+
+            for (Map.Entry<LinkType, List<Link>> entry : linksByType.entrySet()) {
+                Processor processor = this.getProcessor(entry.getKey());
 
                 if (processor == null) {
-                    return;
+                    continue;
                 }
 
-                processor.process(tag, link);
+                processor.process(tag, entry.getValue().toArray(new Link[0]));
             }
         }
     }

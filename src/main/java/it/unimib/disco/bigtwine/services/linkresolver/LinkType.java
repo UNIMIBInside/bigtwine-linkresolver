@@ -8,6 +8,10 @@ public enum LinkType {
     }
 
     public static boolean isDbpediaResourceLink(String url) {
+        if (url == null) {
+            return false;
+        }
+
         return url.startsWith("http://dbpedia.org/resource/") || url.startsWith("https://dbpedia.org/resource/");
     }
 
