@@ -3,12 +3,13 @@ package it.unimib.disco.bigtwine.services.linkresolver.service;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverRequestMessage;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
 import it.unimib.disco.bigtwine.commons.messaging.RequestCounter;
-import it.unimib.disco.bigtwine.commons.models.Link;
-import it.unimib.disco.bigtwine.commons.models.Resource;
-import it.unimib.disco.bigtwine.commons.models.dto.ResourceDTO;
+import it.unimib.disco.bigtwine.commons.messaging.dto.ResourceDTO;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.Link;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.Resource;
 import it.unimib.disco.bigtwine.commons.processors.GenericProcessor;
 import it.unimib.disco.bigtwine.commons.processors.ProcessorListener;
 import it.unimib.disco.bigtwine.services.linkresolver.LinkType;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.mapper.LinkMapper;
 import it.unimib.disco.bigtwine.services.linkresolver.processors.Processor;
 import it.unimib.disco.bigtwine.services.linkresolver.processors.ProcessorFactory;
 import it.unimib.disco.bigtwine.services.linkresolver.messaging.LinkResolverRequestsConsumerChannel;
@@ -76,12 +77,13 @@ public class LinkResolverService implements ProcessorListener<Resource> {
     }
 
     private void processResolveRequest(LinkResolverRequestMessage request) {
-        if (request.getLinks().length > 0) {
+        Link[] links = LinkMapper.INSTANCE.linksFromDTOs(request.getLinks());
+        if (links.length > 0) {
             String tag = this.getNewRequestTag();
             int linksCount = 0;
             Map<LinkType, List<Link>> linksByType = new HashMap<>();
 
-            for (Link link : request.getLinks()) {
+            for (Link link : links) {
                 String url = link.getUrl();
                 LinkType linkType = LinkType.getTypeOfLink(url);
 
@@ -124,8 +126,10 @@ public class LinkResolverService implements ProcessorListener<Resource> {
             this.requests.remove(tag);
         }
 
+        ResourceDTO[] resourceDTOs = LinkMapper.INSTANCE.dtosFromResources(resources);
+
         LinkResolverResponseMessage response = new LinkResolverResponseMessage();
-        response.setResources(Arrays.asList(resources).toArray(new ResourceDTO[resources.length]));
+        response.setResources(resourceDTOs);
         response.setRequestId(tag);
         MessageBuilder<LinkResolverResponseMessage> messageBuilder = MessageBuilder
             .withPayload(response);

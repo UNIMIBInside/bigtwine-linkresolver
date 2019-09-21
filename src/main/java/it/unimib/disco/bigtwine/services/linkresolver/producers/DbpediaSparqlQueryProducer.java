@@ -1,6 +1,6 @@
 package it.unimib.disco.bigtwine.services.linkresolver.producers;
 
-import it.unimib.disco.bigtwine.commons.models.Link;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.Link;
 import it.unimib.disco.bigtwine.services.linkresolver.QueryType;
 
 public final class DbpediaSparqlQueryProducer implements SparqlQueryProducer {

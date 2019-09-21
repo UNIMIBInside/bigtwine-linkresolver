@@ -1,6 +1,6 @@
 package it.unimib.disco.bigtwine.services.linkresolver.parsers;
 
-import it.unimib.disco.bigtwine.commons.models.Resource;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.Resource;
 import org.apache.jena.query.ResultSet;
 
 public interface SparqlQueryResultParser extends QueryResultParser {
