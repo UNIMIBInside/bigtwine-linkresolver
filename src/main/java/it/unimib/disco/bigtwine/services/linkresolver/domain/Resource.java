@@ -90,8 +90,7 @@ public class Resource implements Serializable {
         return extra;
     }
 
-    public Resource setExtra(Map<String, Object> extra) {
+    public void setExtra(Map<String, Object> extra) {
         this.extra = extra;
-        return this;
     }
 }

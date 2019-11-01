@@ -11,17 +11,15 @@ public class ExtraField {
         return valuePath;
     }
 
-    public ExtraField setValuePath(String valuePath) {
+    public void setValuePath(String valuePath) {
         this.valuePath = valuePath;
-        return this;
     }
 
     public String getSaveAs() {
         return saveAs;
     }
 
-    public ExtraField setSaveAs(String saveAs) {
+    public void setSaveAs(String saveAs) {
         this.saveAs = saveAs;
-        return this;
     }
 }
