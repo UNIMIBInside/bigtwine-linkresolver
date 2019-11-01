@@ -3,6 +3,7 @@ package it.unimib.disco.bigtwine.services.linkresolver.domain;
 public class ExtraField {
     private String valuePath;
     private String saveAs;
+    private boolean isList;
 
     public ExtraField() {
     }
@@ -21,5 +22,13 @@ public class ExtraField {
 
     public void setSaveAs(String saveAs) {
         this.saveAs = saveAs;
+    }
+
+    public boolean isList() {
+        return isList;
+    }
+
+    public void setList(boolean list) {
+        isList = list;
     }
 }

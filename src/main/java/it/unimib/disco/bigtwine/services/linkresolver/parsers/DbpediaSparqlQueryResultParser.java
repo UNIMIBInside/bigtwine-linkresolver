@@ -8,15 +8,13 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultParser {
 
     private ResultSet resultSet;
     private ExtraField[] extraFields;
+    private Map<String, ExtraField> extraFieldsByName;
 
     @Override
     public QueryType getQueryType() {
@@ -115,7 +113,12 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
                         res.setExtra(new HashMap<>());
                     }
 
-                    res.getExtra().put(szVar, szVal);
+                    Object extraFieldValue = szVal;
+                    if (this.extraFieldsByName.get(szVar).isList()) {
+                        extraFieldValue = ((String)extraFieldValue).split("\\|");
+                    }
+
+                    res.getExtra().put(szVar, extraFieldValue);
                 }
             }
         }
@@ -137,10 +140,13 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
             return names;
         }
 
-        for (ExtraField extraField: extraFields) {
-            names.add(extraField.getSaveAs());
+        if (this.extraFieldsByName == null) {
+            this.extraFieldsByName = new HashMap<>();
+            for (ExtraField extraField: extraFields) {
+                this.extraFieldsByName.put(extraField.getSaveAs(), extraField);
+            }
         }
 
-        return names;
+        return this.extraFieldsByName.keySet();
     }
 }

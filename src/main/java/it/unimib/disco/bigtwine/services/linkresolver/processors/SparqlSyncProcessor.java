@@ -73,16 +73,22 @@ public abstract class SparqlSyncProcessor implements Processor {
         for (Link item : items) {
             log.debug("Starting to resolve link: {}", item.getUrl());
             String query = this.queryProducer.buildQuery(item, extraFields);
-            ResultSet resultSet = this.executor.query(query);
-            log.debug("Link {} resolved", resultSet);
-            if (resultSet != null) {
-                Resource resource = this.resultParser.parse(resultSet, extraFields);
+            ResultSet resultSet = null;
+            try {
+                resultSet = this.executor.query(query);
+                log.debug("Link {} resolved", resultSet);
+                if (resultSet != null) {
+                    Resource resource = this.resultParser.parse(resultSet, extraFields);
 
-                if (resource != null) {
-                    resources.add(resource);
-                    log.debug("Resource found for link {} {}", item.getUrl(), resource.getName());
+                    if (resource != null) {
+                        resources.add(resource);
+                        log.debug("Resource found for link {} {}", item.getUrl(), resource.getName());
+                    }
                 }
+            } catch (Exception e) {
+                log.error("Error while executing sparql query: {}", query, e);
             }
+
         }
 
         if (this.listener != null) {

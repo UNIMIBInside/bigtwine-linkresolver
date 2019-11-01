@@ -24,11 +24,7 @@ public interface SparqlSyncExecutor extends SyncExecutor {
     }
 
     String getEndpoint();
-    default ResultSet query(String query) {
-        try {
-            return this.queryEndpoint(query, this.getEndpoint());
-        }catch(Exception e) {
-            return null;
-        }
+    default ResultSet query(String query) throws Exception {
+        return this.queryEndpoint(query, this.getEndpoint());
     }
 }

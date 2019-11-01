@@ -204,7 +204,7 @@ dependencies {
     testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.springframework.cloud:spring-cloud-stream-test-support"
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
-    compile group: 'org.bitbucket.bigtwine', name: 'commons', version: '9dd9631618'
+    compile group: 'org.bitbucket.bigtwine', name: 'commons', version: '7884aa5be7'
     compile group: 'org.apache.jena', name: 'apache-jena-libs', version: '3.10.0', ext: 'pom'
     compile group: 'org.apache.jena', name: 'jena-arq', version: '3.10.0'
 }
