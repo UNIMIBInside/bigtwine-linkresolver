@@ -4,6 +4,7 @@ import it.unimib.disco.bigtwine.commons.messaging.LinkResolverRequestMessage;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
 import it.unimib.disco.bigtwine.commons.messaging.RequestCounter;
 import it.unimib.disco.bigtwine.commons.messaging.dto.ResourceDTO;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.ExtraField;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Link;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Resource;
 import it.unimib.disco.bigtwine.commons.processors.GenericProcessor;
@@ -78,6 +79,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
 
     private void processResolveRequest(LinkResolverRequestMessage request) {
         Link[] links = LinkMapper.INSTANCE.linksFromDTOs(request.getLinks());
+        ExtraField[] extraFields = LinkMapper.INSTANCE.extraFieldsFromDTOs(request.getExtraFields());
         if (links.length > 0) {
             String tag = this.getNewRequestTag();
             int linksCount = 0;
@@ -108,7 +110,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
                     continue;
                 }
 
-                processor.process(tag, entry.getValue().toArray(new Link[0]));
+                processor.process(tag, entry.getValue().toArray(new Link[0]), extraFields);
             }
         }
     }

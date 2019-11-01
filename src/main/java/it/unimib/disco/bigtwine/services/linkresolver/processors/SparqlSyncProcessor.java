@@ -1,6 +1,7 @@
 package it.unimib.disco.bigtwine.services.linkresolver.processors;
 
 import it.unimib.disco.bigtwine.commons.executors.Executor;
+import it.unimib.disco.bigtwine.services.linkresolver.domain.ExtraField;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Link;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Resource;
 import it.unimib.disco.bigtwine.commons.processors.ProcessorListener;
@@ -61,21 +62,21 @@ public abstract class SparqlSyncProcessor implements Processor {
     }
 
     @Override
-    public boolean process(String tag, Link item) {
-        return this.process(tag, new Link[] {item});
+    public boolean process(String tag, Link item, ExtraField[] extraFields) {
+        return this.process(tag, new Link[] {item}, extraFields);
     }
 
     @Override
-    public boolean process(String tag, Link[] items) {
+    public boolean process(String tag, Link[] items, ExtraField[] extraFields) {
         List<Resource> resources = new ArrayList<>();
 
         for (Link item : items) {
             log.debug("Starting to resolve link: {}", item.getUrl());
-            String query = this.queryProducer.buildQuery(item);
+            String query = this.queryProducer.buildQuery(item, extraFields);
             ResultSet resultSet = this.executor.query(query);
             log.debug("Link {} resolved", resultSet);
             if (resultSet != null) {
-                Resource resource = this.resultParser.parse(resultSet);
+                Resource resource = this.resultParser.parse(resultSet, extraFields);
 
                 if (resource != null) {
                     resources.add(resource);
@@ -90,4 +91,14 @@ public abstract class SparqlSyncProcessor implements Processor {
 
         return items.length == 0 || resources.size() > 0;
     }
+    @Override
+    public boolean process(String tag, Link item) {
+        return this.process(tag, item, null);
+    }
+
+    @Override
+    public boolean process(String tag, Link[] items) {
+        return this.process(tag, items, null);
+    }
+
 }

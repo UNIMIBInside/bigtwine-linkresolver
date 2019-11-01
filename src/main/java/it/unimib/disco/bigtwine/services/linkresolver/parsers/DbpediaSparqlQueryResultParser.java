@@ -1,5 +1,6 @@
 package it.unimib.disco.bigtwine.services.linkresolver.parsers;
 
+import it.unimib.disco.bigtwine.services.linkresolver.domain.ExtraField;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Resource;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Coordinates;
 import it.unimib.disco.bigtwine.services.linkresolver.QueryType;
@@ -7,11 +8,15 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultParser {
 
     private ResultSet resultSet;
+    private ExtraField[] extraFields;
 
     @Override
     public QueryType getQueryType() {
@@ -30,12 +35,20 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
     }
 
     @Override
+    public Resource parse(ResultSet resultSet, ExtraField[] extraFields) {
+        this.resultSet = resultSet;
+        this.extraFields = extraFields;
+        return this.parse();
+    }
+
+    @Override
     public Resource parse() {
         if (this.resultSet == null) throw new IllegalStateException("resultSet is null");
 
         Resource res = new Resource();
         Double lat = null;
         Double lng = null;
+        Set<String> extraFieldNames = this.getExtraFieldNames();
 
         if (this.resultSet.hasNext()) {
             // Get Result
@@ -96,6 +109,14 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
                         }
                         break;
                 }
+
+                if (extraFieldNames.contains(szVar)) {
+                    if (res.getExtra() == null) {
+                        res.setExtra(new HashMap<>());
+                    }
+
+                    res.getExtra().put(szVar, szVal);
+                }
             }
         }
 
@@ -108,5 +129,18 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
         }else {
             return null;
         }
+    }
+
+    private Set<String> getExtraFieldNames() {
+        Set<String> names = new HashSet<>();
+        if (extraFields == null || extraFields.length == 0) {
+            return names;
+        }
+
+        for (ExtraField extraField: extraFields) {
+            names.add(extraField.getSaveAs());
+        }
+
+        return names;
     }
 }

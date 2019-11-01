@@ -1,5 +1,6 @@
 package it.unimib.disco.bigtwine.services.linkresolver.producers;
 
+import it.unimib.disco.bigtwine.services.linkresolver.domain.ExtraField;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Link;
 import it.unimib.disco.bigtwine.services.linkresolver.QueryType;
 
@@ -11,7 +12,21 @@ public final class DbpediaSparqlQueryProducer implements SparqlQueryProducer {
     }
 
     @Override
-    public String buildQuery(Link link) {
+    public String buildQuery(Link link, ExtraField[] extraFields) {
+        String extra = "";
+        if (extraFields != null && extraFields.length > 0) {
+            StringBuilder extraBuilder = new StringBuilder();
+
+            for (ExtraField extraField : extraFields) {
+                String fieldName = extraField.getSaveAs();
+                extraBuilder.append(
+                    String.format("OPTIONAL {?uri %s ?%s.}\n", extraField.getValuePath(), fieldName)
+                );
+            }
+
+            extra = extraBuilder.toString();
+        }
+
         String szQuery =
             "PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
                 "PREFIX dbp: <http://dbpedia.org/property/> \n" +
@@ -29,6 +44,7 @@ public final class DbpediaSparqlQueryProducer implements SparqlQueryProducer {
                 "    OPTIONAL {?uri dbo:thumbnail ?thumb.}\n" +
                 "    OPTIONAL {?uri wgs:lat ?lat.}\n" +
                 "    OPTIONAL {?uri wgs:long ?lng.}\n" +
+                extra +
                 "    FILTER (?uri = <{RESOURCE_URI}>)\n" +
                 "}\n" +
                 "LIMIT 1";
@@ -36,5 +52,10 @@ public final class DbpediaSparqlQueryProducer implements SparqlQueryProducer {
         return szQuery
             .replace("{RESOURCE_URI}", link.getUrl())
             .replace("{RESOURCE_TAG}", link.getTag() != null ? link.getTag() : "");
+    }
+
+    @Override
+    public String buildQuery(Link link) {
+        return buildQuery(link, null);
     }
 }

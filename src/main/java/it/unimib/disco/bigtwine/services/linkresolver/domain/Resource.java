@@ -1,6 +1,7 @@
 package it.unimib.disco.bigtwine.services.linkresolver.domain;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class Resource implements Serializable {
     private String tag;
@@ -10,6 +11,7 @@ public class Resource implements Serializable {
     private String thumbLarge;
     private String url;
     private Coordinates coordinates;
+    private Map<String, Object> extra;
 
     public Resource() {
     }
@@ -82,5 +84,14 @@ public class Resource implements Serializable {
 
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public Map<String, Object> getExtra() {
+        return extra;
+    }
+
+    public Resource setExtra(Map<String, Object> extra) {
+        this.extra = extra;
+        return this;
     }
 }
