@@ -4,6 +4,7 @@ import it.unimib.disco.bigtwine.services.linkresolver.domain.ExtraField;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Resource;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Coordinates;
 import it.unimib.disco.bigtwine.services.linkresolver.QueryType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
@@ -108,7 +109,7 @@ public final class DbpediaSparqlQueryResultParser implements SparqlQueryResultPa
                         break;
                 }
 
-                if (extraFieldNames.contains(szVar)) {
+                if (extraFieldNames.contains(szVar) && StringUtils.isNotBlank(szVal)) {
                     if (res.getExtra() == null) {
                         res.setExtra(new HashMap<>());
                     }
