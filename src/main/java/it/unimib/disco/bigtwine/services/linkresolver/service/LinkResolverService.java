@@ -3,6 +3,7 @@ package it.unimib.disco.bigtwine.services.linkresolver.service;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverRequestMessage;
 import it.unimib.disco.bigtwine.commons.messaging.LinkResolverResponseMessage;
 import it.unimib.disco.bigtwine.commons.messaging.RequestCounter;
+import it.unimib.disco.bigtwine.commons.messaging.ResponseMessage;
 import it.unimib.disco.bigtwine.commons.messaging.dto.ResourceDTO;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.ExtraField;
 import it.unimib.disco.bigtwine.services.linkresolver.domain.Link;
@@ -115,6 +116,18 @@ public class LinkResolverService implements ProcessorListener<Resource> {
         }
     }
 
+    private void sendExpired(LinkResolverRequestMessage request) {
+        LinkResolverResponseMessage response = new LinkResolverResponseMessage();
+        response.setStatus(ResponseMessage.Status.EXPIRED);
+        this.doSendResponse(request, response);
+    }
+
+    private void sendRejected(LinkResolverRequestMessage request) {
+        LinkResolverResponseMessage response = new LinkResolverResponseMessage();
+        response.setStatus(ResponseMessage.Status.REJECTED);
+        this.doSendResponse(request, response);
+    }
+
     private void sendResponse(Processor processor, String tag, Resource[] resources) {
         if (!this.requests.containsKey(tag)) {
             log.debug("Request tagged '" + tag + "' expired");
@@ -133,6 +146,21 @@ public class LinkResolverService implements ProcessorListener<Resource> {
         LinkResolverResponseMessage response = new LinkResolverResponseMessage();
         response.setResources(resourceDTOs);
         response.setRequestId(tag);
+        response.setStatus(requestCounter.hasMore() ? ResponseMessage.Status.PARTIAL : ResponseMessage.Status.PROCESSED);
+        this.doSendResponse(request, response);
+
+        log.info("Request Processed: {}.", tag);
+    }
+
+    private void doSendResponse(LinkResolverRequestMessage request, LinkResolverResponseMessage response) {
+        if (response.getRequestId() == null) {
+            response.setRequestId(request.getRequestId());
+        }
+
+        if (response.getResources() == null) {
+            response.setResources(new ResourceDTO[0]);
+        }
+
         MessageBuilder<LinkResolverResponseMessage> messageBuilder = MessageBuilder
             .withPayload(response);
 
@@ -142,14 +170,17 @@ public class LinkResolverService implements ProcessorListener<Resource> {
         }else {
             this.channel.send(messageBuilder.build());
         }
-
-        log.info("Request Processed: {}.", tag);
     }
 
     @StreamListener(LinkResolverRequestsConsumerChannel.CHANNEL)
     public void onNewDecodeRequest(LinkResolverRequestMessage request) {
-        log.info("Request Received: {}.", request.getRequestId());
-        this.processResolveRequest(request);
+        if (request.getExpiration() > 0 && System.currentTimeMillis() > request.getExpiration()) {
+            log.warn("Request expired before processing: {}.", request.getRequestId());
+            this.sendExpired(request);
+        } else {
+            log.info("Request Received: {}.", request.getRequestId());
+            this.processResolveRequest(request);
+        }
     }
 
     @Override
