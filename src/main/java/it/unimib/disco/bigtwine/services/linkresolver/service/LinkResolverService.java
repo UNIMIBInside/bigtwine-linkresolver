@@ -110,7 +110,7 @@ public class LinkResolverService implements ProcessorListener<Resource> {
                     continue;
                 }
 
-                processor.process(tag, entry.getValue().toArray(new Link[0]), extraFields);
+                processor.process(tag, entry.getValue().toArray(new Link[0]), extraFields, request.isSkipCache());
             }
         }
     }
