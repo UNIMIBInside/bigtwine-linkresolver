@@ -90,6 +90,7 @@ public abstract class SparqlSyncProcessor implements Processor {
 
                         if (resource != null) {
                             resources.add(resource);
+                            this.cache.put(item.getUrl(), resource);
                             log.debug("Resource found for link {} {}", item.getUrl(), resource.getName());
                         }
                     }
