@@ -72,6 +72,7 @@ public abstract class SparqlSyncProcessor implements Processor {
     public boolean process(String tag, Link[] items, ExtraField[] extraFields, boolean skipCache) {
         List<Resource> resources = new ArrayList<>();
 
+        skipCache = true;
         for (Link item : items) {
             log.debug("Starting to resolve link: {}", item.getUrl());
 
